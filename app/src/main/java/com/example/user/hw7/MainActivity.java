@@ -118,6 +118,14 @@ public class MainActivity extends AppCompatActivity {
                 GetIntent();
             }
         });
+        action_star.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view){
+                type=4;
+                GetIntent();
+            }
+        });
+
 
         BroadcastReceiver myBroadcasReceiver = new BroadcastReceiver() {
             @Override
@@ -207,6 +215,9 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             }
 
+                            if(type==4){
+                                
+                            }
                         }
                     });
 
