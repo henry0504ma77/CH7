@@ -12,6 +12,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Camera;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -63,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
     FloatingActionMenu actionMenu;
     com.github.clans.fab.FloatingActionButton action_all, action_star, action_car, action_moto, action_bike;
 
-    class Data{
+     class Data{
         Result result;
         class Result{
             Results[] results;
@@ -148,22 +149,54 @@ public class MainActivity extends AppCompatActivity {
                 Gson gson = new Gson();
                 Data data = gson.fromJson(myJson,Data.class);
 
-                String[] list_item = new String[data.result.results.length];
+
+
                 Map jsonObject = (Map)gson.fromJson(myJson,Object.class);
                 Map result = (Map) jsonObject.get("result");
 
-                List results = (List) result.get("results");
-                for(int i=0;i<data.result.results.length;i++){
-                    LinkedTreeMap<String, String> value = (LinkedTreeMap<String, String>) results.get(i);
-                    list_item[i] = new String();
-                    list_item[i] +=data.result.results[i].停車場名稱;
-                    list_item[i] +="\n"+value.get("經度(WGS84)");
-                    list_item[i] +="\n"+value.get("緯度(WGS84)");
-                }
-                AlertDialog.Builder dialog_list = new AlertDialog.Builder(MainActivity.this);
+
+                final List results = (List) result.get("results");
+
+                    SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.parkmap);
+
+                    mapFragment.getMapAsync(new OnMapReadyCallback() {
+                        @Override
+                        public void onMapReady(GoogleMap googleMap) {
+                            if(ActivityCompat.checkSelfPermission(MainActivity.this, android.Manifest.permission.ACCESS_COARSE_LOCATION)!= PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, android.Manifest.permission.ACCESS_COARSE_LOCATION)!= PackageManager.PERMISSION_GRANTED){
+                                return;
+                            }
+                            googleMap.setMyLocationEnabled(true);
+
+                            for( int i = 0; i < results.size(); i++) {
+                                LinkedTreeMap<String, String> value = (LinkedTreeMap<String, String>) results.get(i);
+
+                                MarkerOptions m1 = new MarkerOptions();
+
+
+
+                                m1.position(new LatLng(Double.parseDouble(value.get("緯度(WGS84)")),Double.parseDouble(value.get("經度(WGS84)"))));
+                                m1.draggable(true);
+                                m1.title(value.get("停車場名稱"));
+                                googleMap.addMarker(m1);
+
+                                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(25.033739,121.527886),11));
+                            }
+
+
+
+                        }
+                    });
+
+
+
+                /*AlertDialog.Builder dialog_list = new AlertDialog.Builder(MainActivity.this);
                 dialog_list.setTitle("台北捷運列車到站站名");
-                dialog_list.setItems(list_item,null);
-                dialog_list.show();
+                dialog_list.setItems(list_location,null);
+                dialog_list.setItems(list_longitude,null);
+                dialog_list.setItems(list_latitude,null);
+                dialog_list.show();*/
+
+
             }
         };
         IntentFilter intentFilter = new IntentFilter("MyMessage");
