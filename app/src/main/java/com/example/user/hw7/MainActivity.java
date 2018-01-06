@@ -64,7 +64,9 @@ public class MainActivity extends AppCompatActivity {
     FloatingActionMenu actionMenu;
     com.github.clans.fab.FloatingActionButton action_all, action_star, action_car, action_moto, action_bike;
 
-     class Data{
+    public int type;
+
+     final class Data{
         Result result;
         class Result{
             Results[] results;
@@ -80,67 +82,43 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        /*com.github.clans.fab.FloatingActionButton action_all = (com.github.clans.fab.FloatingActionButton)findViewById(R.id.action_all);
-        com.github.clans.fab.FloatingActionButton action_star = (com.github.clans.fab.FloatingActionButton)findViewById(R.id.action_star);
+        com.github.clans.fab.FloatingActionButton action_all = (com.github.clans.fab.FloatingActionButton)findViewById(R.id.action_all);
         com.github.clans.fab.FloatingActionButton action_car = (com.github.clans.fab.FloatingActionButton)findViewById(R.id.action_car);
         com.github.clans.fab.FloatingActionButton action_bike = (com.github.clans.fab.FloatingActionButton)findViewById(R.id.action_bike);
-        com.github.clans.fab.FloatingActionButton action_moto = (com.github.clans.fab.FloatingActionButton)findViewById(R.id.action_moto);*/
-
-        /*SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.parkmap);
-
-        mapFragment.getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(GoogleMap googleMap) {
-                if(ActivityCompat.checkSelfPermission(MainActivity.this, android.Manifest.permission.ACCESS_COARSE_LOCATION)!= PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, android.Manifest.permission.ACCESS_COARSE_LOCATION)!= PackageManager.PERMISSION_GRANTED){
-                    return;
-                }
-                googleMap.setMyLocationEnabled(true);
-
-                MarkerOptions m1 = new MarkerOptions();
-                m1.position(new LatLng(25.033611,121.565000));
-                m1.draggable(true);
-                m1.title("台北101");
-                googleMap.addMarker(m1);
-
-                MarkerOptions m2 = new MarkerOptions();
-                m2.position(new LatLng(25.047924,121.517081));
-                m2.draggable(true);
-                m2.title("台北車站");
-                googleMap.addMarker(m2);
+        com.github.clans.fab.FloatingActionButton action_moto = (com.github.clans.fab.FloatingActionButton)findViewById(R.id.action_moto);
+        com.github.clans.fab.FloatingActionButton action_star = (com.github.clans.fab.FloatingActionButton)findViewById(R.id.action_star);
 
 
-
-            }
-        });testing correct*/
-
-
-        com.github.clans.fab.FloatingActionButton action_all = (com.github.clans.fab.FloatingActionButton)findViewById(R.id.action_all);
 
         action_all.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
-                OkHttpClient mOkHttpClient = new OkHttpClient();
-                Request request = new Request.Builder()
-                        .url("http://data.taipei/opendata/datalist/apiAccess"
-                                +"?scope=resourceAquire&rid=a880adf3-d574-430a-8e29-3192a41897a5")
-                        .build();
-
-                Call call = mOkHttpClient.newCall(request);
-                call.enqueue(new Callback()
-                {
-                    @Override
-                    public void onFailure(Request request, IOException e) {}
-
-                    @Override
-                    public void onResponse(final Response response) throws IOException
-                    {
-                        Intent i = new Intent("MyMessage");
-                        i.putExtra("json",response.body().string());
-                        sendBroadcast(i);
-                    }
-                });
+                type=0;
+                GetIntent();
             }
         });
+        action_bike.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view){
+                type=1;
+                GetIntent();
+            }
+        });
+        action_moto.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view){
+                type=2;
+                GetIntent();
+            }
+        });
+        action_car.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view){
+                type=3;
+                GetIntent();
+            }
+        });
+
         BroadcastReceiver myBroadcasReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -149,11 +127,8 @@ public class MainActivity extends AppCompatActivity {
                 Gson gson = new Gson();
                 Data data = gson.fromJson(myJson,Data.class);
 
-
-
                 Map jsonObject = (Map)gson.fromJson(myJson,Object.class);
                 Map result = (Map) jsonObject.get("result");
-
 
                 final List results = (List) result.get("results");
 
@@ -166,41 +141,102 @@ public class MainActivity extends AppCompatActivity {
                                 return;
                             }
                             googleMap.setMyLocationEnabled(true);
+                            MarkerOptions m = new MarkerOptions();
 
+                            if(type==0)
                             for( int i = 0; i < results.size(); i++) {
                                 LinkedTreeMap<String, String> value = (LinkedTreeMap<String, String>) results.get(i);
 
-                                MarkerOptions m1 = new MarkerOptions();
+                                if(i==0){
+                                    googleMap.clear();
+                                }
 
-
-
-                                m1.position(new LatLng(Double.parseDouble(value.get("緯度(WGS84)")),Double.parseDouble(value.get("經度(WGS84)"))));
-                                m1.draggable(true);
-                                m1.title(value.get("停車場名稱"));
-                                googleMap.addMarker(m1);
+                                m.position(new LatLng(Double.parseDouble(value.get("緯度(WGS84)")),Double.parseDouble(value.get("經度(WGS84)"))));
+                                m.draggable(true);
+                                m.title(value.get("停車場名稱"));
+                                googleMap.addMarker(m);
 
                                 googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(25.033739,121.527886),11));
                             }
+                            if(type==1)
+                            for( int k = 0; k < results.size(); k++) {
+                                LinkedTreeMap<String, String> value = (LinkedTreeMap<String, String>) results.get(k);
 
+                                if(k==0){
+                                    googleMap.clear();
+                                }
 
+                                if(value.get("停車場名稱").indexOf("自行車")>-1){
+                                    m.position(new LatLng(Double.parseDouble(value.get("緯度(WGS84)")),Double.parseDouble(value.get("經度(WGS84)"))));
+                                    m.draggable(true);
+                                    m.title(value.get("停車場名稱"));
+                                    googleMap.addMarker(m);
+                                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(25.033739,121.527886),11));
+                                }
+                            }
+                            if(type==2)
+                            for( int o = 0; o < results.size(); o++) {
+                                LinkedTreeMap<String, String> value = (LinkedTreeMap<String, String>) results.get(o);
+
+                                if(o==0){
+                                    googleMap.clear();
+                                }
+
+                                if(value.get("停車場名稱").indexOf("機車")>-1){
+                                    m.position(new LatLng(Double.parseDouble(value.get("緯度(WGS84)")),Double.parseDouble(value.get("經度(WGS84)"))));
+                                    m.draggable(true);
+                                    m.title(value.get("停車場名稱"));
+                                    googleMap.addMarker(m);
+                                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(25.033739,121.527886),11));
+                                }
+                            }
+                            if(type==3)
+                            for( int u = 0; u < results.size(); u++) {
+                                LinkedTreeMap<String, String> value = (LinkedTreeMap<String, String>) results.get(u);
+
+                                if(u==0){
+                                    googleMap.clear();
+                                }
+
+                                if(value.get("停車場名稱").indexOf("機車")==-1 && value.get("停車場名稱").indexOf("自行車")==-1 ){
+                                    m.position(new LatLng(Double.parseDouble(value.get("緯度(WGS84)")),Double.parseDouble(value.get("經度(WGS84)"))));
+                                    m.draggable(true);
+                                    m.title(value.get("停車場名稱"));
+                                    googleMap.addMarker(m);
+                                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(25.033739,121.527886),11));
+                                }
+                            }
 
                         }
                     });
-
-
-
-                /*AlertDialog.Builder dialog_list = new AlertDialog.Builder(MainActivity.this);
-                dialog_list.setTitle("台北捷運列車到站站名");
-                dialog_list.setItems(list_location,null);
-                dialog_list.setItems(list_longitude,null);
-                dialog_list.setItems(list_latitude,null);
-                dialog_list.show();*/
-
 
             }
         };
         IntentFilter intentFilter = new IntentFilter("MyMessage");
         registerReceiver(myBroadcasReceiver, intentFilter);
+    }
+
+    private void GetIntent(){
+        OkHttpClient mOkHttpClient = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url("http://data.taipei/opendata/datalist/apiAccess"
+                        +"?scope=resourceAquire&rid=a880adf3-d574-430a-8e29-3192a41897a5")
+                .build();
+
+        Call call = mOkHttpClient.newCall(request);
+        call.enqueue(new Callback()
+        {
+            @Override
+            public void onFailure(Request request, IOException e) {}
+
+            @Override
+            public void onResponse(final Response response) throws IOException
+            {
+                Intent i = new Intent("MyMessage");
+                i.putExtra("json",response.body().string());
+                sendBroadcast(i);
+            }
+        });
     }
 
 }
