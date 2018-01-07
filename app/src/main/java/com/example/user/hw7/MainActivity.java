@@ -66,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
 
     public int type;
     public String temp;
+    public  String like;
 
     Button btnEdit;
     TextView textOut;
@@ -156,13 +157,13 @@ public class MainActivity extends AppCompatActivity {
 
                     mapFragment.getMapAsync(new OnMapReadyCallback() {
                         @Override
-                        public void onMapReady(GoogleMap googleMap) {
+                        public void onMapReady(final GoogleMap googleMap) {
                             if(ActivityCompat.checkSelfPermission(MainActivity.this, android.Manifest.permission.ACCESS_COARSE_LOCATION)!= PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, android.Manifest.permission.ACCESS_COARSE_LOCATION)!= PackageManager.PERMISSION_GRANTED){
                                 return;
                             }
                             googleMap.setMyLocationEnabled(true);
                             googleMap.clear();
-                            MarkerOptions m = new MarkerOptions();
+                            final MarkerOptions m = new MarkerOptions();
 
                             if(type==0)
                             for( int i = 0; i < results.size(); i++) {
@@ -246,26 +247,61 @@ public class MainActivity extends AppCompatActivity {
 
                             if(type==4){
                                 final AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
-                                dialog.setTitle("新增/移除最愛");
-                                dialog.setMessage("請根據下方按鈕選擇要執行的動作");
+                                dialog.setTitle("常用的位置");
+                                //dialog.setMessage("請根據下方按鈕選擇要執行的動作");
 
                                 dialog.setNeutralButton("取消", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
-                                        Toast.makeText(MainActivity.this,"Dialog關閉",Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(MainActivity.this,"Dialog cancel",Toast.LENGTH_SHORT).show();
                                     }
 
 
                                 });
-                                dialog.setNegativeButton("刪除最愛",new DialogInterface.OnClickListener(){
+                                dialog.setNegativeButton("刪除",new DialogInterface.OnClickListener(){
                                     @Override
                                     public void onClick(DialogInterface dialogInterface,int i){
-                                        //delete();
+                                        googleMap.clear();
                                     }
                                 });
-                                dialog.setPositiveButton("新增最愛",new DialogInterface.OnClickListener(){
+                                dialog.setPositiveButton("新增",new DialogInterface.OnClickListener(){
                                     @Override
                                     public void onClick(DialogInterface dialogInterface,int i){
+                                        AlertDialog.Builder editDialog = new AlertDialog.Builder(MainActivity.this);
+                                        editDialog.setTitle("新增停車場");
+
+                                        final EditText editText = new EditText(MainActivity.this);
+                                        editText.setText(textOut.getText());
+                                        editDialog.setView(editText);
+
+                                        editDialog.setPositiveButton("確認", new DialogInterface.OnClickListener() {
+
+                                            public void onClick(DialogInterface arg0, int arg1) {
+                                                textOut.setText(editText.getText().toString());
+                                                like = editText.getText().toString();
+                                                Toast.makeText(MainActivity.this,"加到最愛",Toast.LENGTH_SHORT).show();
+                                                for( int u = 0; u < results.size(); u++) {
+                                                    LinkedTreeMap<String, String> value = (LinkedTreeMap<String, String>) results.get(u);
+                                                    
+                                                    if(value.get("停車場名稱").indexOf(like)>-1){
+                                                        m.position(new LatLng(Double.parseDouble(value.get("緯度(WGS84)")),Double.parseDouble(value.get("經度(WGS84)"))));
+                                                        m.draggable(true);
+                                                        m.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));
+                                                        m.title(value.get("停車場名稱"));
+
+                                                        googleMap.addMarker(m);
+                                                        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(25.033739,121.527886),11));
+                                                    }
+                                                }
+                                            }
+                                        });
+                                        editDialog.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                                            // do something when the button is clicked
+                                            public void onClick(DialogInterface arg0, int arg1) {
+                                                //...
+                                            }
+                                        });
+                                        editDialog.show();
 
                                     }
                                 });
