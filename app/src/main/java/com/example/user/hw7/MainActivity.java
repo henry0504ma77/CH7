@@ -65,6 +65,11 @@ public class MainActivity extends AppCompatActivity {
     com.github.clans.fab.FloatingActionButton action_all, action_star, action_car, action_moto, action_bike;
 
     public int type;
+    public String temp;
+    public  String like;
+
+    Button btnEdit;
+    TextView textOut;
 
      final class Data{
         Result result;
@@ -87,6 +92,12 @@ public class MainActivity extends AppCompatActivity {
         com.github.clans.fab.FloatingActionButton action_bike = (com.github.clans.fab.FloatingActionButton)findViewById(R.id.action_bike);
         com.github.clans.fab.FloatingActionButton action_moto = (com.github.clans.fab.FloatingActionButton)findViewById(R.id.action_moto);
         com.github.clans.fab.FloatingActionButton action_star = (com.github.clans.fab.FloatingActionButton)findViewById(R.id.action_star);
+
+        btnEdit = (Button)findViewById(R.id.edit);
+        textOut = (TextView)findViewById(R.id.textout);
+
+        btnEdit.setOnClickListener(btnEditOnClickListener);
+
 
 
 
@@ -118,6 +129,16 @@ public class MainActivity extends AppCompatActivity {
                 GetIntent();
             }
         });
+        action_star.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view){
+                type=4;
+                GetIntent();
+            }
+        });
+
+        btnEdit.setOnClickListener(btnEditOnClickListener);
+
 
         BroadcastReceiver myBroadcasReceiver = new BroadcastReceiver() {
             @Override
@@ -136,20 +157,21 @@ public class MainActivity extends AppCompatActivity {
 
                     mapFragment.getMapAsync(new OnMapReadyCallback() {
                         @Override
-                        public void onMapReady(GoogleMap googleMap) {
+                        public void onMapReady(final GoogleMap googleMap) {
                             if(ActivityCompat.checkSelfPermission(MainActivity.this, android.Manifest.permission.ACCESS_COARSE_LOCATION)!= PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, android.Manifest.permission.ACCESS_COARSE_LOCATION)!= PackageManager.PERMISSION_GRANTED){
                                 return;
                             }
                             googleMap.setMyLocationEnabled(true);
-                            MarkerOptions m = new MarkerOptions();
+                            googleMap.clear();
+                            final MarkerOptions m = new MarkerOptions();
 
                             if(type==0)
                             for( int i = 0; i < results.size(); i++) {
                                 LinkedTreeMap<String, String> value = (LinkedTreeMap<String, String>) results.get(i);
 
-                                if(i==0){
+                                /*if(i==0){
                                     googleMap.clear();
-                                }
+                                }*/
 
                                 m.position(new LatLng(Double.parseDouble(value.get("緯度(WGS84)")),Double.parseDouble(value.get("經度(WGS84)"))));
                                 m.draggable(true);
@@ -162,9 +184,9 @@ public class MainActivity extends AppCompatActivity {
                             for( int k = 0; k < results.size(); k++) {
                                 LinkedTreeMap<String, String> value = (LinkedTreeMap<String, String>) results.get(k);
 
-                                if(k==0){
+                                /*if(k==0){
                                     googleMap.clear();
-                                }
+                                }*/
 
                                 if(value.get("停車場名稱").indexOf("自行車")>-1){
                                     m.position(new LatLng(Double.parseDouble(value.get("緯度(WGS84)")),Double.parseDouble(value.get("經度(WGS84)"))));
@@ -178,9 +200,9 @@ public class MainActivity extends AppCompatActivity {
                             for( int o = 0; o < results.size(); o++) {
                                 LinkedTreeMap<String, String> value = (LinkedTreeMap<String, String>) results.get(o);
 
-                                if(o==0){
+                                /*if(o==0){
                                     googleMap.clear();
-                                }
+                                }*/
 
                                 if(value.get("停車場名稱").indexOf("機車")>-1){
                                     m.position(new LatLng(Double.parseDouble(value.get("緯度(WGS84)")),Double.parseDouble(value.get("經度(WGS84)"))));
@@ -194,10 +216,14 @@ public class MainActivity extends AppCompatActivity {
                             for( int u = 0; u < results.size(); u++) {
                                 LinkedTreeMap<String, String> value = (LinkedTreeMap<String, String>) results.get(u);
 
-                                if(u==0){
+                                /*if(u==0){
                                     googleMap.clear();
+<<<<<<< HEAD
                                 }
                                 
+=======
+                                }*/
+>>>>>>> adam
 
                                 if(value.get("停車場名稱").indexOf("機車")==-1 && value.get("停車場名稱").indexOf("自行車")==-1 ){
                                     m.position(new LatLng(Double.parseDouble(value.get("緯度(WGS84)")),Double.parseDouble(value.get("經度(WGS84)"))));
@@ -207,7 +233,85 @@ public class MainActivity extends AppCompatActivity {
                                     googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(25.033739,121.527886),11));
                                 }
                             }
+                            if(type==5)
+                                for( int u = 0; u < results.size(); u++) {
+                                    LinkedTreeMap<String, String> value = (LinkedTreeMap<String, String>) results.get(u);
 
+                                    /*if(u==0){
+                                        googleMap.clear();
+                                    }*/
+
+                                    if(value.get("停車場名稱").indexOf(temp)>-1){
+                                        m.position(new LatLng(Double.parseDouble(value.get("緯度(WGS84)")),Double.parseDouble(value.get("經度(WGS84)"))));
+                                        m.draggable(true);
+                                        m.title(value.get("停車場名稱"));
+                                        googleMap.addMarker(m);
+                                        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(25.033739,121.527886),11));
+                                    }
+                                }
+
+                            if(type==4){
+                                final AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
+                                dialog.setTitle("常用的位置");
+                                //dialog.setMessage("請根據下方按鈕選擇要執行的動作");
+
+                                dialog.setNeutralButton("取消", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        Toast.makeText(MainActivity.this,"Dialog cancel",Toast.LENGTH_SHORT).show();
+                                    }
+
+
+                                });
+                                dialog.setNegativeButton("刪除",new DialogInterface.OnClickListener(){
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface,int i){
+                                        googleMap.clear();
+                                    }
+                                });
+                                dialog.setPositiveButton("新增",new DialogInterface.OnClickListener(){
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface,int i){
+                                        AlertDialog.Builder editDialog = new AlertDialog.Builder(MainActivity.this);
+                                        editDialog.setTitle("新增停車場");
+
+                                        final EditText editText = new EditText(MainActivity.this);
+                                        editText.setText(textOut.getText());
+                                        editDialog.setView(editText);
+
+                                        editDialog.setPositiveButton("確認", new DialogInterface.OnClickListener() {
+
+                                            public void onClick(DialogInterface arg0, int arg1) {
+                                                textOut.setText(editText.getText().toString());
+                                                like = editText.getText().toString();
+                                                Toast.makeText(MainActivity.this,"加到最愛",Toast.LENGTH_SHORT).show();
+                                                for( int u = 0; u < results.size(); u++) {
+                                                    LinkedTreeMap<String, String> value = (LinkedTreeMap<String, String>) results.get(u);
+                                                    
+                                                    if(value.get("停車場名稱").indexOf(like)>-1){
+                                                        m.position(new LatLng(Double.parseDouble(value.get("緯度(WGS84)")),Double.parseDouble(value.get("經度(WGS84)"))));
+                                                        m.draggable(true);
+                                                        m.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));
+                                                        m.title(value.get("停車場名稱"));
+
+                                                        googleMap.addMarker(m);
+                                                        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(25.033739,121.527886),11));
+                                                    }
+                                                }
+                                            }
+                                        });
+                                        editDialog.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                                            // do something when the button is clicked
+                                            public void onClick(DialogInterface arg0, int arg1) {
+                                                //...
+                                            }
+                                        });
+                                        editDialog.show();
+
+                                    }
+                                });
+                                dialog.show();
+                            }
                         }
                     });
 
@@ -217,6 +321,43 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(myBroadcasReceiver, intentFilter);
     }
 
+    private Button.OnClickListener btnEditOnClickListener
+            = new Button.OnClickListener(){
+
+        @Override
+        public void onClick(View arg0) {
+
+            AlertDialog.Builder editDialog = new AlertDialog.Builder(MainActivity.this);
+            editDialog.setTitle("搜尋停車場");
+
+            final EditText editText = new EditText(MainActivity.this);
+            editText.setText(textOut.getText());
+            editDialog.setView(editText);
+
+            editDialog.setPositiveButton("確認", new DialogInterface.OnClickListener() {
+
+                public void onClick(DialogInterface arg0, int arg1) {
+                    textOut.setText(editText.getText().toString());
+                    temp = editText.getText().toString();
+                    type=5;
+                    GetIntent();
+                }
+            });
+            editDialog.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                // do something when the button is clicked
+                public void onClick(DialogInterface arg0, int arg1) {
+                    //...
+                }
+            });
+            editDialog.show();
+
+        }};
+
+
+
+    /*private void delete(){
+
+    }*/
     private void GetIntent(){
         OkHttpClient mOkHttpClient = new OkHttpClient();
         Request request = new Request.Builder()
