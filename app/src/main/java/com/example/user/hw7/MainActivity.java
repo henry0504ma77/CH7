@@ -223,7 +223,7 @@ public class MainActivity extends AppCompatActivity {
                                 
 =======
                                 }*/
->>>>>>> adam
+
 
                                 if(value.get("停車場名稱").indexOf("機車")==-1 && value.get("停車場名稱").indexOf("自行車")==-1 ){
                                     m.position(new LatLng(Double.parseDouble(value.get("緯度(WGS84)")),Double.parseDouble(value.get("經度(WGS84)"))));
@@ -245,6 +245,8 @@ public class MainActivity extends AppCompatActivity {
                                         m.position(new LatLng(Double.parseDouble(value.get("緯度(WGS84)")),Double.parseDouble(value.get("經度(WGS84)"))));
                                         m.draggable(true);
                                         m.title(value.get("停車場名稱"));
+                                        if(temp == like)
+                                            m.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));
                                         googleMap.addMarker(m);
                                         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(25.033739,121.527886),11));
                                     }
